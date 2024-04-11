@@ -9,6 +9,7 @@ load_dotenv()
 
 # Access environment variables
 MONGO_URI = os.getenv('mongodb://localhost:27017')
+print("MongoDB URI from .env file:", MONGO_URI)  # Add this line to print the MongoDB URI
 
 # Check if MONGO_URI is not None
 if MONGO_URI is None:
