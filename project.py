@@ -2,65 +2,32 @@ import streamlit as st
 import pandas as pd
 from pymongo import MongoClient
 
-# MongoDB URI
+# Set your MongoDB URI here
 MONGO_URI = "mongodb+srv://anushkasupe1:8zDA5Q3QXRoIPYK5@cluster0.qfu1qzq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 # Connect to MongoDB
 client = MongoClient(MONGO_URI)
-db = client.student_db
-collection = db.students
+db = client.attendance_db
+collection = db.attendance_records
 
 # Streamlit UI
-st.title('Student Attendance Management System')
+st.title('Attendance Management System')
 
 option = st.sidebar.selectbox('Menu', ['Mark Attendance', 'View Attendance'])
 
 if option == 'Mark Attendance':
-    name = st.text_input('Enter Student Name:')
-    date = st.date_input('Select Date:')
-    present = st.checkbox('Present')
+    student_id = st.text_input('Enter Student ID:')
+    status = st.radio('Attendance Status:', ('Present', 'Absent'))
     if st.button('Submit'):
-        attendance = {'Name': name, 'Date': date, 'Present': present}
-        collection.insert_one(attendance)
+        new_entry = {'StudentID': student_id, 'Status': status}
+        collection.insert_one(new_entry)
         st.success('Attendance marked successfully!')
 
 elif option == 'View Attendance':
-    student_name = st.text_input('Enter Student Name:')
-    if st.button('Search'):
-        attendance_records = list(collection.find({'Name': student_name}))
-        if attendance_records:
-            attendance_df = pd.DataFrame(attendance_records)
-            st.table(attendance_df)
-        else:
-            st.info('No attendance records found for this student.')
+    attendance_records = list(collection.find())
+    if attendance_records:
+        attendance_df = pd.DataFrame(attendance_records)
+        st.table(attendance_df)
+    else:
+        st.info('No attendance records found.')
 
-    st.error("MongoDB URI is not set. Please check your .env file.")
-else:
-    # Connect to MongoDB
-    client = MongoClient(MONGO_URI)
-    db = client.student_db
-    collection = db.students
-
-    # Streamlit UI
-    st.title('Student Attendance Management System')
-
-    option = st.sidebar.selectbox('Menu', ['Mark Attendance', 'View Attendance'])
-
-    if option == 'Mark Attendance':
-        name = st.text_input('Enter Student Name:')
-        date = st.date_input('Select Date:')
-        present = st.checkbox('Present')
-        if st.button('Submit'):
-            attendance = {'Name': name, 'Date': date, 'Present': present}
-            collection.insert_one(attendance)
-            st.success('Attendance marked successfully!')
-
-    elif option == 'View Attendance':
-        student_name = st.text_input('Enter Student Name:')
-        if st.button('Search'):
-            attendance_records = list(collection.find({'Name': student_name}))
-            if attendance_records:
-                attendance_df = pd.DataFrame(attendance_records)
-                st.table(attendance_df)
-            else:
-                st.info('No attendance records found for this student.')
